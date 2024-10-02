@@ -66,6 +66,7 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
+  padding: 20px 0 0;
 }
 .rangerPicker {
   display: flex;
@@ -74,4 +75,87 @@
 }
 .rangerPicker div {
   cursor: pointer;
+}
+.react-datepicker-popper {
+  z-index: 10 !important;
+}
+.navigation-buttons {
+  border: 1px solid rgba(28, 31, 34, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04),
+    0 0 1px rgba(0, 0, 0, 0.08);
+  background: #fff;
+  border-radius: 4px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+}
+.navigation-buttons > button {
+  height: 36px;
+  border-left: 1px solid #1c1f2233;
+  border-right: 0;
+  border-top: 0;
+  border-bottom: 0;
+  padding: 8px 16px;
+  background-color: #fff;
+  cursor: pointer;
+}
+.today {
+  border-right: 1px solid #1c1f2233 !important;
+}
+.navigation-buttons {
+  display: flex;
+}
+.navigation-buttons > button:hover {
+  background-color: #00000008;
+}
+.navigation-buttons > button.active {
+  box-shadow: inset 0 0 1px rgba(0, 0, 0, 0.1019607843),
+    inset 0 1px 2px rgba(0, 0, 0, 0.0196078431),
+    inset 0 1px 4px rgba(0, 0, 0, 0.0392156863), inset 0 2px 6px transparent,
+    inset 0 2px 8px rgba(0, 0, 0, 0.0705882353);
+  background-color: rgba(28, 31, 34, 0.06);
+  border-right: 1px solid #1c1f2233;
+}
+.changeButton {
+  width: 32px;
+}
+.react-datepicker-wrapper {
+  display: block !important;
+}
+.example-custom-input {
+  padding: 10px 32px !important;
+  border: 0;
+  background: #fff;
+  cursor: pointer;
+  min-width: 150px;
+}
+.ant-select-selector {
+  text-align: center;
+}
+.popOvers {
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  background: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 2px 3px rgba(0, 0, 0, 0.03),
+    0 1px 2px rgba(0, 0, 0, 0.04), 0 0 1px rgba(0, 0, 0, 0.08);
+  border-radius: 6px;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  -ms-border-radius: 6px;
+  -o-border-radius: 6px;
+}
+.popOvers > button {
+  border: 0;
+  background: #fff;
+  width: 100%;
+  padding: 10px 16px;
+  text-align: left;
+  cursor: pointer;
+}
+.popOvers > button:hover {
+  background: #fff3d1;
 }
