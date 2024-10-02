@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 
 const TaskList = ({ events }) => {
   const [shuffledIndexes, setShuffledIndexes] = useState([]);
-  const [colors, setColors] = useState([]);
+  const [backgroundColors, setBackgroundColors] = useState([]);
+  const [borderColors, setBorderColors] = useState([]);
 
   const getRandomColor = () =>
     `#${Math.floor(Math.random() * 16777215).toString(16)}`;
@@ -14,35 +15,53 @@ const TaskList = ({ events }) => {
       );
     setShuffledIndexes(shuffleIndexes());
 
-    const newColors = events.map(() => getRandomColor());
-    setColors(newColors);
+    const newBackgroundColors = events.map(() => getRandomColor());
+    const newBorderColors = events.map(() => getRandomColor());
+
+    // Ensure border color is not the same as background color
+    const finalBorderColors = newBorderColors.map((borderColor, index) => {
+      while (borderColor === newBackgroundColors[index]) {
+        borderColor = getRandomColor();
+      }
+      return borderColor;
+    });
+
+    setBackgroundColors(newBackgroundColors);
+    setBorderColors(finalBorderColors);
   }, [events]);
 
   return (
     <div className="task-list">
       <h2>Task List</h2>
-      <ul>
+      <ul id="exportEvent">
+        <li className="exportEventItem">
+          <p>
+            <strong>Tiêu đề:</strong> Item Demo
+          </p>
+        </li>
+
         {shuffledIndexes.map((index) => (
           <li
             key={index}
             style={{
-              backgroundColor: colors[index],
-              borderLeft: `5px solid ${colors[index]}`,
+              backgroundColor: backgroundColors[index],
+              borderLeft: `5px solid ${borderColors[index]}`,
             }}
+            className="exportEventItem"
           >
             <p>
               <strong>Tiêu đề:</strong> {events[index].title}
             </p>
             <p>
-              <strong>Ngày tháng:</strong>{" "}
+              <strong>Ngày tháng:</strong>
               {events[index].start.toLocaleDateString()}
             </p>
             <p>
-              <strong>Giờ bắt đầu:</strong>{" "}
+              <strong>Giờ bắt đầu:</strong>
               {events[index].start.toLocaleTimeString()}
             </p>
             <p>
-              <strong>Giờ kết thúc:</strong>{" "}
+              <strong>Giờ kết thúc:</strong>
               {events[index].end.toLocaleTimeString()}
             </p>
           </li>

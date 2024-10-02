@@ -1,8 +1,8 @@
-import React, { forwardRef, useRef, useState } from "react";
+import React, { forwardRef, useEffect, useRef, useState } from "react";
 import "./App.css";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import interactionPlugin from "@fullcalendar/interaction";
+import interactionPlugin, { Draggable } from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import TaskList from "./components/TaskList";
 import { Select } from "antd";
@@ -67,14 +67,6 @@ export default function App() {
     };
     changeView(viewMap[value]);
   };
-
-  const ExampleCustomInput = forwardRef(
-    ({ value, onClick, className }, ref) => (
-      <button className={className} onClick={onClick} ref={ref}>
-        {value}
-      </button>
-    )
-  );
 
   const handleDateClick = (arg) => {
     const calendarApi = calendarRef.current.getApi();
@@ -145,12 +137,34 @@ export default function App() {
       selectedDate.getDate() === today.getDate()
     );
   };
-
+  const ExampleCustomInput = forwardRef(
+    ({ value, onClick, className }, ref) => (
+      <button className={className} onClick={onClick} ref={ref}>
+        {value}
+      </button>
+    )
+  );
+  const INITIAL_EVENTS = [
+    {
+      title: "Task 0 - First task",
+      date: new Date().toISOString().substr(0, 10),
+    },
+  ];
+  useEffect(() => {
+    const containerEl = document.querySelector("#exportEvent");
+    new Draggable(containerEl, {
+      itemSelector: ".exportEventItem",
+      eventData: (eventEl) => {
+        return {
+          title: eventEl.innerText,
+        };
+      },
+    });
+  }, []);
   return (
     <div className="container">
       <div className="calendar-container">
         <div className="calenderHeader ">
-          {" "}
           <Select
             value={selectedView}
             style={{ width: 120, height: 40 }}
@@ -206,7 +220,10 @@ export default function App() {
           editable={true}
           allDaySlot={false}
           dateClick={handleDateClick}
+          initialEvents={INITIAL_EVENTS}
+          droppable
         />
+       
         <div onSelect={handleSelect}>
           {dropdownVisible && (
             <div
@@ -221,7 +238,11 @@ export default function App() {
                 return (
                   <button
                     key={index}
-                    onClick={() => handleOptionClicker(`Task ${Math.floor(Math.random() * 100) + 1}`)}
+                    onClick={() =>
+                      handleOptionClicker(
+                        `Task ${Math.floor(Math.random() * 100) + 1}`
+                      )
+                    }
                   >
                     {index}
                   </button>
@@ -232,7 +253,7 @@ export default function App() {
         </div>
       </div>
       <div className="other-element">
-        <TaskList events={events} />
+        <TaskList events={events}/>
       </div>
     </div>
   );
