@@ -18,7 +18,6 @@ const TaskList = ({ events }) => {
     const newBackgroundColors = events.map(() => getRandomColor());
     const newBorderColors = events.map(() => getRandomColor());
 
-    // Ensure border color is not the same as background color
     const finalBorderColors = newBorderColors.map((borderColor, index) => {
       while (borderColor === newBackgroundColors[index]) {
         borderColor = getRandomColor();

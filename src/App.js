@@ -18,46 +18,12 @@ export default function App() {
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
 
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
-    const calendarApi = calendarRef.current.getApi();
-    calendarApi.gotoDate(date);
-    calendarApi.changeView("timeGridDay");
-    setSelectedView("day");
-  };
-
-  const handleSelect = (arg) => {
-    setSelectedBox(new Date(arg.start));
-    if (["dayGridDay", "timeGridWeek", "timeGridDay"].includes(arg.view.type)) {
-      setDropdownPosition({
-        top: arg.jsEvent.clientY,
-        left: arg.jsEvent.clientX,
-      });
-      setDropdownVisible(true);
-    }
-  };
-
-  const handleOptionClicker = (title) => {
-    const newEvent = { title, start: selectedBox, end: selectedBox };
-    setEvents((prevEvents) => [...prevEvents, newEvent]);
-    setDropdownVisible(false);
-  };
-
-  const handleEventChange = (arg) => {
-    setEvents((prevEvents) =>
-      prevEvents.map((event) =>
-        event.id === arg.event.id
-          ? { ...event, start: arg.event.start, end: arg.event.end }
-          : event
-      )
-    );
-  };
-
+  // Tạo hàm nhận lấy viewType đại diện cho loại hiển thị mà nó nhận được
   const changeView = (viewType) => {
     const calendarApi = calendarRef.current.getApi();
     calendarApi.changeView(viewType);
   };
-
+  // Tạo hàm để tạo chức năng dropdown, gán các thông tin của calendar vào chữ cái ngắn hơn để dễ thao tác
   const handleChange = (value) => {
     setSelectedView(value);
     const viewMap = {
@@ -67,7 +33,54 @@ export default function App() {
     };
     changeView(viewMap[value]);
   };
-
+  // Chức năng kéo bên ngoài vào calendar
+  useEffect(() => {
+    const containerEl = document.querySelector("#exportEvent");
+    new Draggable(containerEl, {
+      itemSelector: ".exportEventItem",
+      eventData: (eventEl) => {
+        return {
+          title: eventEl.innerText,
+        };
+      },
+    });
+  }, []);
+  // Sự kiện đồng bộ hóa ở calendar header và fullcalendar
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+    const calendarApi = calendarRef.current.getApi();
+    calendarApi.gotoDate(date);
+    calendarApi.changeView("timeGridDay");
+    setSelectedView("day");
+  };
+  // Sự kiện tạo popup với 3 option tại vị trí click với top và left, sẽ tắt đi nếu double click
+  const handleSelect = (arg) => {
+    setSelectedBox(new Date(arg.start));
+    if (["dayGridDay", "timeGridWeek", "timeGridDay"].includes(arg.view.type)) {
+      setDropdownPosition({
+        top: arg.jsEvent.clientY,
+        left: arg.jsEvent.clientX,
+      });
+      setDropdownVisible(!dropdownVisible);
+    }
+  };
+  // Tạo sự kiện để thêm task vào siddebar và tên task random ngẫu nhiên từ 1 - 100
+  const handleOptionClicker = (title) => {
+    const newEvent = { title, start: selectedBox, end: selectedBox };
+    setEvents((prevEvents) => [...prevEvents, newEvent]);
+    setDropdownVisible(!dropdownVisible);
+  };
+  // Sự kiện sẽ thay đổi này giờ task khi có sự kiện kéo thả hoặc thay đổi
+  const handleEventChange = (arg) => {
+    setEvents((prevEvents) =>
+      prevEvents.map((event) =>
+        event.id === arg.event.id
+          ? { ...event, start: arg.event.start, end: arg.event.end }
+          : event
+      )
+    );
+  };
+  // Hàm sẽ chuyển đến ngày khi click ở month
   const handleDateClick = (arg) => {
     const calendarApi = calendarRef.current.getApi();
     setSelectedDate(arg.date);
@@ -75,7 +88,17 @@ export default function App() {
     calendarApi.changeView("timeGridDay");
     setSelectedView("day");
   };
-
+  // Thay đổi định dạng ngày tháng năm ở datePicker
+  const formatDatePicker = () => {
+    if (selectedView === "day") {
+      return "MMMM, d, YYYY";
+    } else if (selectedView === "week") {
+      return "MMMM, d, YYYY";
+    } else if (selectedView === "month") {
+      return "MMMM YYYY";
+    }
+  };
+  // Hàm chuyển đến ngày hôm trước ở day, tuần trước ở week, và 30 ngày trước ở month
   const handlePrevClick = () => {
     const calendarApi = calendarRef.current.getApi();
     let newDate;
@@ -97,7 +120,7 @@ export default function App() {
     setSelectedDate(newDate);
     calendarApi.gotoDate(newDate);
   };
-
+  // Hàm chuyển đến ngày hôm sau ở day, tuần sau ở week, và 30 ngày sau ở month
   const handleNextClick = () => {
     const calendarApi = calendarRef.current.getApi();
     let newDate;
@@ -119,7 +142,7 @@ export default function App() {
     setSelectedDate(newDate);
     calendarApi.gotoDate(newDate);
   };
-
+  // Hàm khi chọn sẽ đồng bộ với fullcalendar để chuyển đến giao diện day của ngày hôm nay
   const handleTodayClick = () => {
     const today = new Date();
     setSelectedDate(today);
@@ -128,7 +151,7 @@ export default function App() {
     calendarApi.changeView("timeGridDay");
     setSelectedView("day");
   };
-
+  // Hàm để kiểm tra hôm nay là ngày bao nhiêu
   const isTodaySelected = () => {
     const today = new Date();
     return (
@@ -137,6 +160,7 @@ export default function App() {
       selectedDate.getDate() === today.getDate()
     );
   };
+  // Biến custom input thành button của datepicker
   const ExampleCustomInput = forwardRef(
     ({ value, onClick, className }, ref) => (
       <button className={className} onClick={onClick} ref={ref}>
@@ -144,23 +168,14 @@ export default function App() {
       </button>
     )
   );
+  // Biến tạo dữ liệu mẫu bên trong fullcalendar
   const INITIAL_EVENTS = [
     {
       title: "Task 0 - First task",
       date: new Date().toISOString().substr(0, 10),
     },
   ];
-  useEffect(() => {
-    const containerEl = document.querySelector("#exportEvent");
-    new Draggable(containerEl, {
-      itemSelector: ".exportEventItem",
-      eventData: (eventEl) => {
-        return {
-          title: eventEl.innerText,
-        };
-      },
-    });
-  }, []);
+
   return (
     <div className="container">
       <div className="calendar-container">
@@ -192,6 +207,7 @@ export default function App() {
               customInput={
                 <ExampleCustomInput className="example-custom-input" />
               }
+              dateFormat={formatDatePicker()}
             />
             <button onClick={handleNextClick} className="changeButton">
               {">"}
@@ -223,7 +239,7 @@ export default function App() {
           initialEvents={INITIAL_EVENTS}
           droppable
         />
-       
+
         <div onSelect={handleSelect}>
           {dropdownVisible && (
             <div
@@ -253,7 +269,7 @@ export default function App() {
         </div>
       </div>
       <div className="other-element">
-        <TaskList events={events}/>
+        <TaskList events={events} />
       </div>
     </div>
   );
