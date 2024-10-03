@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect , memo} from "react";
 
-const TaskList = ({ events }) => {
+const TaskList = memo(({ events }) => {
   const [shuffledIndexes, setShuffledIndexes] = useState([]);
   const [backgroundColors, setBackgroundColors] = useState([]);
   const [borderColors, setBorderColors] = useState([]);
@@ -28,17 +28,10 @@ const TaskList = ({ events }) => {
     setBackgroundColors(newBackgroundColors);
     setBorderColors(finalBorderColors);
   }, [events]);
-
   return (
     <div className="task-list">
       <h2>Task List</h2>
       <ul id="exportEvent">
-        <li className="exportEventItem">
-          <p>
-            <strong>Tiêu đề:</strong> Item Demo
-          </p>
-        </li>
-
         {shuffledIndexes.map((index) => (
           <li
             key={index}
@@ -49,18 +42,18 @@ const TaskList = ({ events }) => {
             className="exportEventItem"
           >
             <p>
-              <strong>Tiêu đề:</strong> {events[index].title}
+              <strong >Tiêu đề: </strong> {events[index].title}
             </p>
             <p>
-              <strong>Ngày tháng:</strong>
+              <strong>Ngày tháng: </strong>
               {events[index].start.toLocaleDateString()}
             </p>
             <p>
-              <strong>Giờ bắt đầu:</strong>
+              <strong>Giờ bắt đầu: </strong>
               {events[index].start.toLocaleTimeString()}
             </p>
             <p>
-              <strong>Giờ kết thúc:</strong>
+              <strong>Giờ kết thúc: </strong>
               {events[index].end.toLocaleTimeString()}
             </p>
           </li>
@@ -68,6 +61,6 @@ const TaskList = ({ events }) => {
       </ul>
     </div>
   );
-};
+});
 
 export default TaskList;
