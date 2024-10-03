@@ -177,7 +177,16 @@ export default function App() {
       {value}
     </button>
   ));
-
+  const handleEventReceive = (info) => {
+    // const newEvent = {
+    //   id: Math.random().toString(36).substr(2, 9),
+    //   title: info.event.title,
+    //   start: info.event.start,
+    //   end: info.event.end || info.event.start,
+    //   allDay: info.event.allDay,
+    // };
+    // setEvents((prevEvents) => [...prevEvents, newEvent]);
+  };
   return (
     <div className="container">
       <div className="calendar-container">
@@ -200,6 +209,7 @@ export default function App() {
           handleSelect={handleSelect}
           handleEventChange={handleEventChange}
           handleDateClick={handleDateClick}
+          handleEventReceive={handleEventReceive}
         />
         {dropdownVisible && (
           <DropDown
