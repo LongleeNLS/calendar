@@ -1,63 +1,46 @@
-import React, { useState, useEffect , memo} from "react";
+import React, { useState, useEffect, memo } from "react";
 
 const TaskList = memo(({ events }) => {
-  const [shuffledIndexes, setShuffledIndexes] = useState([]);
-  const [backgroundColors, setBackgroundColors] = useState([]);
-  const [borderColors, setBorderColors] = useState([]);
+  const [taskColors, setTaskColors] = useState([]);
 
   const getRandomColor = () =>
     `#${Math.floor(Math.random() * 16777215).toString(16)}`;
 
+  const generateColorForNewTask = () => ({
+    backgroundColor: getRandomColor(),
+    borderColor: getRandomColor(),
+  });
+
   useEffect(() => {
-    const shuffleIndexes = () =>
-      Array.from({ length: events.length }, (_, i) => i).sort(
-        () => Math.random() - 0.5
+    if (events.length > taskColors.length) {
+      const newColors = Array.from(
+        { length: events.length - taskColors.length },
+        generateColorForNewTask
       );
-    setShuffledIndexes(shuffleIndexes());
-
-    const newBackgroundColors = events.map(() => getRandomColor());
-    const newBorderColors = events.map(() => getRandomColor());
-
-    const finalBorderColors = newBorderColors.map((borderColor, index) => {
-      while (borderColor === newBackgroundColors[index]) {
-        borderColor = getRandomColor();
-      }
-      return borderColor;
-    });
-
-    setBackgroundColors(newBackgroundColors);
-    setBorderColors(finalBorderColors);
+      setTaskColors((prevColors) => [...prevColors, ...newColors]);
+    }
   }, [events]);
+
   return (
     <div className="task-list">
       <h2>Task List</h2>
       <ul id="exportEvent">
-        {shuffledIndexes.map((index) => (
-          <li
-            key={index}
-            style={{
-              backgroundColor: backgroundColors[index],
-              borderLeft: `5px solid ${borderColors[index]}`,
-            }}
-            className="exportEventItem"
-          >
-            <p>
-              <strong >Tiêu đề: </strong> {events[index].title}
-            </p>
-            <p>
-              <strong>Ngày tháng: </strong>
-              {events[index].start.toLocaleDateString()}
-            </p>
-            <p>
-              <strong>Giờ bắt đầu: </strong>
-              {events[index].start.toLocaleTimeString()}
-            </p>
-            <p>
-              <strong>Giờ kết thúc: </strong>
-              {events[index].end.toLocaleTimeString()}
-            </p>
-          </li>
-        ))}
+        {events.map(({ title }, index) => {
+          const { backgroundColor, borderColor } =
+            taskColors[index] || generateColorForNewTask();
+          return (
+            <li
+              key={index}
+              style={{
+                backgroundColor,
+                borderLeft: `5px solid ${borderColor}`,
+              }}
+              className="exportEventItem"
+            >
+              {title}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

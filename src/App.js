@@ -7,43 +7,10 @@ import CalenderHeader from "./components/CalendarHeader";
 import DropDown from "./components/DropDown";
 import TaskList from "./components/TaskList";
 
-const demoData = [
-  {
-    id: "0",
-    title: "Task Demo 0",
-    start: new Date("2024-10-04T09:00:00"),
-    end: new Date("2024-10-04T10:00:00"),
-  },
-  {
-    id: "1",
-    title: "Task Demo 1",
-    start: new Date("2024-10-03T09:00:00"),
-    end: new Date("2024-10-03T10:00:00"),
-  },
-  {
-    id: "2",
-    title: "Task Demo 2",
-    start: new Date("2024-10-08T09:00:00"),
-    end: new Date("2024-10-08T10:00:00"),
-  },
-  {
-    id: "3",
-    title: "Task AllDay Demo 0",
-    start: new Date("2024-10-03T09:00:00"),
-    end: new Date("2024-10-03T10:00:00"),
-    allDay: true,
-  },
-  {
-    id: "4",
-    title: "Task AllDay Demo 1",
-    start: new Date("2024-10-07T09:00:00"),
-    end: new Date("2024-10-10T10:00:00"),
-    allDay: true,
-  },
-];
 
-export default function App() {
-  const [events, setEvents] = useState(demoData);
+
+export default function App({data}) {
+  const [events, setEvents] = useState(data);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedView, setSelectedView] = useState("month");
   const calendarRef = useRef(null);
@@ -97,11 +64,34 @@ export default function App() {
   };
 
   const handleDateChange = (date) => {
-    setSelectedDate(date);
     const calendarApi = calendarRef.current.getApi();
-    calendarApi.gotoDate(date);
-    calendarApi.changeView("timeGridDay");
-    setSelectedView("day");
+    const currentMonth = selectedDate.getMonth();
+    const currentYear = selectedDate.getFullYear();
+    const currentWeekStart = new Date(selectedDate);
+    currentWeekStart.setDate(
+      currentWeekStart.getDate() - currentWeekStart.getDay()
+    );
+    const currentWeekEnd = new Date(selectedDate);
+    currentWeekEnd.setDate(
+      currentWeekEnd.getDate() + (6 - currentWeekEnd.getDay())
+    );
+
+    const isMonthChanged =
+      selectedView === "month" &&
+      (date.getMonth() !== currentMonth || date.getFullYear() !== currentYear);
+
+    const isWeekChanged =
+      selectedView === "week" &&
+      (date < currentWeekStart || date > currentWeekEnd);
+
+    if (isMonthChanged || isWeekChanged) {
+      setSelectedDate(date);
+      calendarApi.gotoDate(date);
+    } else if (selectedView === "day") {
+      setSelectedDate(date);
+      calendarApi.gotoDate(date);
+      calendarApi.changeView("timeGridDay");
+    }
   };
 
   const handleSelect = (arg) => {
@@ -110,11 +100,12 @@ export default function App() {
       end: new Date(arg.end),
     });
     if (["dayGridDay", "timeGridWeek", "timeGridDay"].includes(arg.view.type)) {
+      // Lấy vị trí con trỏ chuột từ sự kiện click
       setDropdownPosition({
-        top: arg.jsEvent.clientY,
-        left: arg.jsEvent.clientX,
+        top: arg.jsEvent.pageY,  // Vị trí theo chiều dọc của con trỏ
+        left: arg.jsEvent.pageX, // Vị trí theo chiều ngang của con trỏ
       });
-      setDropdownVisible(!dropdownVisible);
+      setDropdownVisible(true);
     }
   };
 
@@ -134,68 +125,70 @@ export default function App() {
     setEvents((prevEvents) =>
       prevEvents.map((event) =>
         event.id === arg.event.id
-          ? { ...event, start: new Date(arg.event.start), end: new Date(arg.event.end), allDay: arg.event.allDay }
+          ? {
+              ...event,
+              allDay: arg.event.allDay,
+            }
           : event
       )
     );
   };
 
   const handleDateClick = (arg) => {
-    setSelectedDate(arg.date);
     const calendarApi = calendarRef.current.getApi();
-    calendarApi.gotoDate(arg.date);
-    calendarApi.changeView("timeGridDay");
-    setSelectedView("day");
+
+    if (selectedView === "month") {
+      setSelectedDate(arg.date);
+      calendarApi.gotoDate(arg.date);
+      calendarApi.changeView("timeGridDay");
+      setSelectedView("day");
+    } else if (selectedView === "week") {
+      setSelectedDate(arg.date);
+      calendarApi.gotoDate(arg.date);
+    }
   };
 
-  const handleNavigationClick = (direction) => {
+  const handleNavigation = (direction) => {
     const calendarApi = calendarRef.current.getApi();
     let newDate = new Date(selectedDate);
-    newDate.setDate(
-      newDate.getDate() + (direction === 'next' ? 1 : -1) * (selectedView === "day" ? 1 : selectedView === "week" ? 7 : 30)
-    );
+
+    if (direction === "today") {
+      newDate = new Date();
+      setSelectedView("day");
+      calendarApi.changeView("timeGridDay");
+    } else {
+      const increment =
+        selectedView === "day" ? 1 : selectedView === "week" ? 7 : 30;
+      newDate.setDate(
+        newDate.getDate() + (direction === "next" ? increment : -increment)
+      );
+    }
 
     setSelectedDate(newDate);
     calendarApi.gotoDate(newDate);
-  };
-
-  const handleTodayClick = () => {
-    const today = new Date();
-    setSelectedDate(today);
-    const calendarApi = calendarRef.current.getApi();
-    calendarApi.gotoDate(today);
-    calendarApi.changeView("timeGridDay");
-    setSelectedView("day");
   };
 
   const isTodaySelected = () => {
     return new Date().toDateString() === selectedDate.toDateString();
   };
 
-  const ExampleCustomInput = forwardRef(({ value, onClick, className }, ref) => (
-    <button className={className} onClick={onClick} ref={ref}>
-      {value}
-    </button>
-  ));
-  const handleEventReceive = (info) => {
-    // const newEvent = {
-    //   id: Math.random().toString(36).substr(2, 9),
-    //   title: info.event.title,
-    //   start: info.event.start,
-    //   end: info.event.end || info.event.start,
-    //   allDay: info.event.allDay,
-    // };
-    // setEvents((prevEvents) => [...prevEvents, newEvent]);
-  };
+  const ExampleCustomInput = forwardRef(
+    ({ value, onClick, className }, ref) => (
+      <button className={className} onClick={onClick} ref={ref}>
+        {value}
+      </button>
+    )
+  );
+
   return (
     <div className="container">
       <div className="calendar-container">
         <CalenderHeader
           handleChange={handleChange}
           handleDateChange={handleDateChange}
-          handlePrevClick={() => handleNavigationClick('prev')}
-          handleNextClick={() => handleNavigationClick('next')}
-          handleTodayClick={handleTodayClick}
+          handlePrevClick={() => handleNavigation("prev")}
+          handleNextClick={() => handleNavigation("next")}
+          handleTodayClick={() => handleNavigation("today")}
           isTodaySelected={isTodaySelected}
           ExampleCustomInput={ExampleCustomInput}
           selectedView={selectedView}
@@ -209,7 +202,6 @@ export default function App() {
           handleSelect={handleSelect}
           handleEventChange={handleEventChange}
           handleDateClick={handleDateClick}
-          handleEventReceive={handleEventReceive}
         />
         {dropdownVisible && (
           <DropDown
