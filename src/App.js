@@ -8,7 +8,7 @@ import DropDown from "./components/DropDown";
 import TaskList from "./components/TaskList";
 import useCalendar from "./hooks/useCalendar";
 
-export default function App({ data }) {
+export default function App({ data, dataTaskList }) {
   const {
     events,
     setEvents,
@@ -27,12 +27,15 @@ export default function App({ data }) {
     handleChange,
     handleDateChange,
     handleSelect,
-    handleOptionClicker,
+    // handleOptionClicker,
     handleEventChange,
     handleDateClick,
     handleNavigation,
     isTodaySelected,
-  } = useCalendar(data);
+    taskList,
+    handleEventReceive,
+    handleEventDrop,
+  } = useCalendar();
 
   const ExampleCustomInput = forwardRef(
     ({ value, onClick, className }, ref) => (
@@ -64,16 +67,18 @@ export default function App({ data }) {
           handleSelect={handleSelect}
           handleEventChange={handleEventChange}
           handleDateClick={handleDateClick}
+          handleEventReceive={handleEventReceive}
+          handleEventDrop={handleEventDrop}
         />
         {dropdownVisible && (
           <DropDown
             dropdownPosition={dropdownPosition}
-            handleOptionClicker={handleOptionClicker}
+            // handleOptionClicker={handleOptionClicker}
           />
         )}
       </div>
       <div className="other-element">
-        <TaskList events={events} />
+        <TaskList taskList={taskList} />
       </div>
     </div>
   );

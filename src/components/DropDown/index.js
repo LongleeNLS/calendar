@@ -12,10 +12,10 @@ export default function DropDown({ dropdownPosition, handleOptionClicker }) {
         return (
           <button
             key={index}
-            onClick={() =>
-              handleOptionClicker(`
-                    Task ${Math.floor(Math.random() * 100) + 1}`)
-            }
+            // onClick={() =>
+            //   handleOptionClicker(`
+            //         Task ${Math.floor(Math.random() * 100) + 1}`)
+            // }
           >
             {index}
           </button>

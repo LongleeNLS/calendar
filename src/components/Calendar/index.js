@@ -8,7 +8,8 @@ export default function Calendar({
   handleSelect,
   handleEventChange,
   handleDateClick,
-  handleEventReceive
+  handleEventReceive,
+  handleEventDrop
 }) {
   return (
     <>
@@ -32,7 +33,8 @@ export default function Calendar({
         editable={true}
         dateClick={handleDateClick}
         droppable
-        handleEventReceive={handleEventReceive}
+        eventReceive={handleEventReceive} 
+        eventDrop={handleEventDrop}
       />
     </>
   );

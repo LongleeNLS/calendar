@@ -1,8 +1,77 @@
 import { useEffect, useRef, useState } from "react";
 import { Draggable } from "@fullcalendar/interaction";
 
-const useCalendar = (data) => {
-  const [events, setEvents] = useState(data);
+const dataCalendar = [
+  {
+    "id": "0",
+    "title": "Task Demo Calendar 0",
+    "start": "2024-10-04T02:00:00.000Z",
+    "end": "2024-10-04T03:00:00.000Z"
+  },
+  {
+    "id": "1",
+    "title": "Task Demo Calendar 1",
+    "start": "2024-10-03T02:00:00.000Z",
+    "end": "2024-10-03T03:00:00.000Z"
+  },
+  {
+    "id": "2",
+    "title": "Task Demo Calendar 2",
+    "start": "2024-10-08T02:00:00.000Z",
+    "end": "2024-10-08T03:00:00.000Z"
+  },
+  {
+    "id": "3",
+    "title": "Task Demo Calendar 3",
+    "start": "2024-10-03T02:00:00.000Z",
+    "end": "2024-10-03T03:00:00.000Z",
+    "allDay": true
+  },
+  {
+    "id": "4",
+    "title": "Task Demo Calendar 4",
+    "start": "2024-10-07T02:00:00.000Z",
+    "end": "2024-10-10T03:00:00.000Z",
+    "allDay": true
+  }
+]
+const dataTaskList = [
+  {
+    "id": "5",
+    "title": "Task Demo TaskList 0",
+    "start": "2024-10-04T02:00:00.000Z",
+    "end": "2024-10-04T03:00:00.000Z"
+  },
+  {
+    "id": "6",
+    "title": "Task Demo TaskList 1",
+    "start": "2024-10-03T02:00:00.000Z",
+    "end": "2024-10-03T03:00:00.000Z"
+  },
+  {
+    "id": "7",
+    "title": "Task Demo TaskList 2",
+    "start": "2024-10-08T02:00:00.000Z",
+    "end": "2024-10-08T03:00:00.000Z"
+  },
+  {
+    "id": "8",
+    "title": "Task Demo TaskList 3",
+    "start": "2024-10-03T02:00:00.000Z",
+    "end": "2024-10-03T03:00:00.000Z",
+    "allDay": true
+  },
+  {
+    "id": "9",
+    "title": "Task Demo TaskList 4",
+    "start": "2024-10-07T02:00:00.000Z",
+    "end": "2024-10-10T03:00:00.000Z",
+    "allDay": true
+  }
+]
+
+const useCalendar = () => {
+  const [events, setEvents] = useState(dataCalendar);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedView, setSelectedView] = useState("month");
   const calendarRef = useRef(null);
@@ -10,7 +79,36 @@ const useCalendar = (data) => {
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const [calendarTitle, setCalendarTitle] = useState("");
+  const [taskList, setTaskList] = useState(dataTaskList);
 
+  const handleEventReceive = (info) => {
+    const { id } = info.draggedEl.dataset;
+
+    const newEvent = {
+      id: id,
+      title: info.draggedEl.innerText,
+      start: info.event.start,
+      end: info.event.end,
+    };
+
+    setEvents((prevEvents) => [...prevEvents, newEvent]);
+
+    setTaskList((prevTasks) => prevTasks.filter((task) => task.id !== id));
+  };
+
+  const handleEventDrop = (info) => {
+    const { id } = info.event;
+
+    setEvents((prevEvents) => prevEvents.filter((event) => event.id !== id));
+
+    const droppedTask = {
+      id: id,
+      title: info.event.title,
+    };
+
+    setTaskList((prevTasks) => [...prevTasks, droppedTask]);
+  };
+  
   useEffect(() => {
     const calendarApi = calendarRef.current.getApi();
     setCalendarTitle(calendarApi.currentData.viewTitle);
@@ -31,7 +129,7 @@ const useCalendar = (data) => {
     if (dropdownVisible) {
       const handleClickOutside = (event) => {
         if (!event.target.closest(".popOvers")) {
-          setDropdownVisible(false);
+          setDropdownVisible(!dropdownVisible);
         }
       };
       document.addEventListener("mousedown", handleClickOutside);
@@ -96,21 +194,21 @@ const useCalendar = (data) => {
         top: arg.jsEvent.pageY,
         left: arg.jsEvent.pageX,
       });
-      setDropdownVisible(true);
+      setDropdownVisible(!dropdownVisible);
     }
   };
 
-  const handleOptionClicker = (title) => {
-    const newEvent = {
-      id: Math.random().toString(36).substr(2, 9),
-      title,
-      start: selectedBox.start,
-      end: selectedBox.end,
-    };
+  // const handleOptionClicker = (title) => {
+  //   const newEvent = {
+  //     id: Math.random().toString(36).substr(2, 9),
+  //     title,
+  //     start: selectedBox.start,
+  //     end: selectedBox.end,
+  //   };
 
-    setEvents((prevEvents) => [...prevEvents, newEvent]);
-    setDropdownVisible(false);
-  };
+  //   setEvents((prevEvents) => [...prevEvents, newEvent]);
+  //   setDropdownVisible(false);
+  // };
 
   const handleEventChange = (arg) => {
     setEvents((prevEvents) =>
@@ -180,11 +278,15 @@ const useCalendar = (data) => {
     handleChange,
     handleDateChange,
     handleSelect,
-    handleOptionClicker,
+    // handleOptionClicker,
     handleEventChange,
     handleDateClick,
     handleNavigation,
     isTodaySelected,
+    taskList,
+    setTaskList,
+    handleEventReceive,
+    handleEventDrop,
   };
 };
 
