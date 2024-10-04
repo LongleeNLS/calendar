@@ -29,7 +29,6 @@ export default function Calendar({
           endTime: "18:00",
         }}
         height="100vh"
-        navLinks={true}
         editable={true}
         dateClick={handleDateClick}
         droppable
